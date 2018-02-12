@@ -1,11 +1,14 @@
-Usage: java -jar gccapture-1.01-SNAPSHOT.jar <args> --csv=<csv>
+# Usage: java -jar gccapture-1.01-SNAPSHOT.jar <args> --csv=<csv>
+
 Output is in current directory
 
-REQUIRED Arguments
+## REQUIRED Arguments
+
 --csv=<csv file>    csv file
 Lower priority but will also work: java -jar gccapture <csv file>
 
-OPTIONAL Arguments
+## OPTIONAL Arguments
+
 --help              this message
 --html=<html>       if "ppdg-template" is not in execution directory
 --value=<value>     Case-insensitive column name with value of GC, DEFAULT: Amount

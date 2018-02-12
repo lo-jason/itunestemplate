@@ -1,8 +1,9 @@
-Usage: java -jar gccapture-1.0-SNAPSHOT.jar <args> --csv=<csv>
+Usage: java -jar gccapture-1.01-SNAPSHOT.jar <args> --csv=<csv>
 Output is in current directory
 
 REQUIRED Arguments
 --csv=<csv file>    csv file
+Lower priority but will also work: java -jar gccapture <csv file>
 
 OPTIONAL Arguments
 --help              this message
@@ -12,4 +13,3 @@ OPTIONAL Arguments
                     Note: if your CSV is all iTunes can ignore this
 --code=<value>      Case-insensitive column name with code of GC,  DEFAULT: Code
 --prefix=<value>    <value>0001.png,  DEFAULT: card
-

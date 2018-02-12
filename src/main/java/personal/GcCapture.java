@@ -9,10 +9,8 @@ import javafx.concurrent.Worker;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
@@ -87,7 +85,7 @@ public class GcCapture extends Application {
         stage.show();
         browser.startListener(this);
         Timeline timeline = new Timeline(new KeyFrame(
-                Duration.millis(1000),
+                Duration.millis(800),
                 ae -> triggerDraw()));
         timeline.play();
 
@@ -107,11 +105,12 @@ public class GcCapture extends Application {
     }
 
     private static void printUsage() {
-        System.out.println("Usage: java -jar gccapture-1.0-SNAPSHOT.jar <args> --csv=<csv>");
+        System.out.println("Usage: java -jar gccapture-1.01-SNAPSHOT.jar <args> --csv=<csv>");
         System.out.println("Output is in current directory");
         System.out.println("");
         System.out.println("REQUIRED Arguments");
         System.out.println("--csv=<csv file>    csv file");
+        System.out.println("Lower priority but will also work: java -jar gccapture <csv file>");
         System.out.println("");
         System.out.println("OPTIONAL Arguments");
         System.out.println("--help              this message");
@@ -130,8 +129,11 @@ public class GcCapture extends Application {
         }
 
         filePrefix = getArg(args, "file", "card");
-
         String csv = getArg(args, "csv", null);
+        if (csv == null) {
+            // try to get just plain CSV from args
+            csv = getPlainCSV(args);
+        }
         if (csv == null || !new File(csv).exists()) {
             System.out.println("*********CSV not found*********");
             printUsage();
@@ -160,6 +162,7 @@ public class GcCapture extends Application {
                 sb.append(line);
             }
         } catch (IOException e) {
+            System.err.println(e.getMessage());
             printUsage();
         }
 
@@ -182,6 +185,15 @@ public class GcCapture extends Application {
             }
         }
         return defaultValue;
+    }
+
+    private static String getPlainCSV(String[] args) {
+        for (String arg : args) {
+            if (!arg.contains("==") && new File(arg).exists()) {
+                return arg;
+            }
+        }
+        return null;
     }
 }
 class Browser extends StackPane {

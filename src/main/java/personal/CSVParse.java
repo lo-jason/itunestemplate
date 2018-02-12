@@ -26,6 +26,9 @@ public class CSVParse {
 
     while ((line = bufferedReader.readLine()) != null) {
       String[] data = line.split(",");
+      if (data.length < 2) {
+        continue;
+      }
 
       ArrayList<String> values = new ArrayList<String>();
       for (Integer i : value_indices) {

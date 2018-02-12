@@ -1,5 +1,7 @@
 package personal;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -9,10 +11,13 @@ import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -44,7 +49,7 @@ public class GcCapture extends Application {
         final Browser browser = new Browser("file");
 
         stage.setTitle("iTunes");
-        scene = new Scene(browser, 800, 580);
+        scene = new Scene(browser, 800, 610);
         stage.setScene(scene);
 
         this.draw = new Runnable() {
@@ -54,8 +59,12 @@ public class GcCapture extends Application {
             public void run() {
                 int pos = count.getAndIncrement();
                 if (pos >= gcToOutput.size()) {
-                    stage.close();
-                    browser.close();
+                    Timeline timeline = new Timeline(new KeyFrame(
+                            Duration.millis(3000),
+                            ae -> {stage.close();browser.close();}));
+                    timeline.play();
+//                    stage.close();
+//                    browser.close();
                     return;
                 }
                 StringBuilder content = new StringBuilder(static_content);
@@ -63,16 +72,22 @@ public class GcCapture extends Application {
                 int i_code = content.indexOf(CODE);
                 int i_value = content.indexOf(VALUE);
 
-                content.replace(i_code, i_code + CODE.length(), gcToOutput.get(pos).get(1));
-                System.out.println("Printed out: " + pos);
-                content.replace(i_value, i_value + VALUE.length(), formatCash(gcToOutput.get(pos).get(2)));
+                String code = gcToOutput.get(pos).get(1);
+                String value = formatCash(gcToOutput.get(pos).get(2));
+                content.replace(i_code, i_code + CODE.length(), code);
+                System.out.println("" + pos + " card " + code + " of value $" + value);
+                content.replace(i_value, i_value + VALUE.length(), value);
                 browser.loadContent(content.toString());
             }
         };
 
         stage.show();
         browser.startListener(this);
-        triggerDraw();
+        Timeline timeline = new Timeline(new KeyFrame(
+                Duration.millis(1000),
+                ae -> triggerDraw()));
+        timeline.play();
+
     }
 
     private String formatCash(String s) {
@@ -85,11 +100,13 @@ public class GcCapture extends Application {
     }
 
     public void triggerDraw() {
-        draw.run();
+        Platform.runLater(() -> draw.run());
     }
 
     private static void printUsage() {
         System.out.println("Usage: java -jar GcCapture args");
+        System.out.println("Output is in current directory");
+        System.out.println("");
         System.out.println("--help              this message");
         System.out.println("REQUIRED Arguments");
         System.out.println("--csv=<csv file>    csv file");
@@ -160,7 +177,7 @@ public class GcCapture extends Application {
         return defaultValue;
     }
 }
-class Browser extends Region {
+class Browser extends StackPane {
 
     private final WebView browser = new WebView();
     private final WebEngine webEngine = browser.getEngine();
@@ -173,27 +190,30 @@ class Browser extends Region {
         this.filePrefix = filePrefix;
         //add the web view to the scene
         getChildren().add(browser);
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setVisible(false);
-        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        getChildren().addAll(scrollPane);
     }
 
     public void startListener(GcCapture capture) {
+        final SnapshotParameters snapshotParameters = new SnapshotParameters();
+        snapshotParameters.setTransform(javafx.scene.transform.Transform.scale(2, 2));
         this.tChangeListener = (observable, oldValue, newValue) -> {
             if (newValue == Worker.State.SUCCEEDED && started) {
-                System.out.println("Take snapshot now render complete");
-                Platform.runLater(() -> {
-                    browser.snapshot((snapImage) -> {
+//                System.out.println("Take snapshot now render complete");
+                WritableImage writableImage = new WritableImage(1600, 1220);
+                Timeline timeline = new Timeline(new KeyFrame(
+                        Duration.millis(100),
+                        ae -> {
+                        browser.snapshot((snapImage) -> {
                         ImageView snapView = new ImageView();
                         snapView.setImage(snapImage.getImage());
                         BufferedImage bufferedImage = SwingFXUtils.fromFXImage(snapImage.getImage(), null);
                         try {
-                            System.out.println("Wrote image" + count.get());
+                            int currentCount = count.getAndIncrement();
+                            String fileName = String.format(filePrefix + "%04d.png", currentCount);
+                            System.out.println("Wrote image" + currentCount + " to " + fileName);
+
                             ImageIO.write(bufferedImage,
                                     "png",
-                                    new File(filePrefix + String.format("%05d", count.getAndIncrement())
-                                            + ".png"));
+                                    new File(fileName));
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -214,8 +234,9 @@ class Browser extends Region {
                         // schedule drawing
                         Platform.runLater(() -> capture.triggerDraw());
                         return null;
-                    }, new SnapshotParameters(), null);
-                });
+                    }, snapshotParameters, writableImage);
+                }));
+                timeline.play();
             }
         };
         webEngine.getLoadWorker().stateProperty().addListener(tChangeListener);

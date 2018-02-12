@@ -40,13 +40,16 @@ public class GcCapture extends Application {
     public static final String CODE = "{CODE}";
 
     private Scene scene;
+    private Runnable draw;
+
+    // set in from main
     private static String static_content;
     private static List<List<String>> gcToOutput;
-    private Runnable draw;
+    private static String filePrefix;
 
     @Override
     public void start(Stage stage) {
-        final Browser browser = new Browser("file");
+        final Browser browser = new Browser(filePrefix);
 
         stage.setTitle("iTunes");
         scene = new Scene(browser, 800, 610);
@@ -104,18 +107,20 @@ public class GcCapture extends Application {
     }
 
     private static void printUsage() {
-        System.out.println("Usage: java -jar GcCapture args");
+        System.out.println("Usage: java -jar gccapture-1.0-SNAPSHOT.jar <args> --csv=<csv>");
         System.out.println("Output is in current directory");
         System.out.println("");
-        System.out.println("--help              this message");
         System.out.println("REQUIRED Arguments");
         System.out.println("--csv=<csv file>    csv file");
+        System.out.println("");
         System.out.println("OPTIONAL Arguments");
-        System.out.println("--html=<html>       optional if \"ppdg-template\" is not in same folder as where we are running");
+        System.out.println("--help              this message");
+        System.out.println("--html=<html>       if \"ppdg-template\" is not in execution directory");
         System.out.println("--value=<value>     Case-insensitive column name with value of GC, DEFAULT: Amount");
         System.out.println("--merchant=<value>  Case-insensitive column name with value of GC, DEFAULT: Merchant");
         System.out.println("                    Note: if your CSV is all iTunes can ignore this");
         System.out.println("--code=<value>      Case-insensitive column name with code of GC,  DEFAULT: Code");
+        System.out.println("--prefix=<value>    <value>0001.png,  DEFAULT: card");
         System.exit(0);
     }
 
@@ -123,6 +128,8 @@ public class GcCapture extends Application {
         if (args.length >= 1 && args[0].contains("help")) {
             printUsage();
         }
+
+        filePrefix = getArg(args, "file", "card");
 
         String csv = getArg(args, "csv", null);
         if (csv == null || !new File(csv).exists()) {

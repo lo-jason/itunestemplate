@@ -18,4 +18,4 @@ Lower priority but will also work: java -jar gccapture <csv file>
 --merchant=<value>  Case-insensitive column name with value of GC, DEFAULT: Merchant
                     Note: if your CSV is all iTunes can ignore this
 --code=<value>      Case-insensitive column name with code of GC,  DEFAULT: Code
---prefix=<value>    <value>0001.png,  DEFAULT: card```
+--prefix=<value>    <value>0001.png,  DEFAULT: card

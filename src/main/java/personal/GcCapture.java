@@ -151,10 +151,14 @@ public class GcCapture extends Application {
                             getArg(args, "code", "Code"),
                             getArg(args, "value", "Amount")}));
             List<List<String>> filteredList = lists.stream()
-                    .filter(e -> e.get(0) == null || e.get(0).toLowerCase().equals("itunes"))
+                    .filter(e -> e.get(0) == null || e.get(0).toLowerCase().contains("itunes"))
                     .collect(Collectors.toList());
 
             gcToOutput = filteredList;
+            if (filteredList.isEmpty()) {
+                System.err.println("No iTunes cards found OR no cards found in CSV.");
+                System.exit(1);
+            }
 
             BufferedReader reader = new BufferedReader(new FileReader(file));
             String line = "";

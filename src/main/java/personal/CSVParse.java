@@ -36,11 +36,26 @@ public class CSVParse {
           values.add(null);
           continue;
         }
-        values.add(data[i]);
+        values.add(trim(data[i]));
       }
       listOfLists.add(values);
     }
     return listOfLists;
+  }
+
+  private String trim(String s) {
+    StringBuilder sb = new StringBuilder(s);
+    if (sb.charAt(0) == '=') {
+      sb.deleteCharAt(0);
+    }
+    if (sb.charAt(0) == '"') {
+      sb.deleteCharAt(0);
+    }
+    int endOfString = sb.length() - 1;
+    if (sb.charAt(endOfString) == '"') {
+      sb.deleteCharAt(endOfString);
+    }
+    return sb.toString().trim();
   }
 
   /**

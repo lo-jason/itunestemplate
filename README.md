@@ -1,13 +1,15 @@
-# How to use 
-
+# How to use
+  
 ```Usage: java -jar gccapture.jar <args> --csv=<csv>```
 
 cards****.png will be output in execution directory
 
 ## REQUIRED Arguments
 
---csv=<csv file>    csv file
-Lower priority but will also work: java -jar gccapture <csv file>
+```
+--csv=<csv file>    the csv file to read
+```
+Lower priority but will also work: ```java -jar gccapture <csv file>```
 
 ## OPTIONAL Arguments
 
@@ -19,3 +21,4 @@ Lower priority but will also work: java -jar gccapture <csv file>
                     Note: if your CSV is all iTunes can ignore this
 --code=<value>      Case-insensitive column name with code of GC,  DEFAULT: Code
 --prefix=<value>    <value>0001.png,  DEFAULT: card```
+

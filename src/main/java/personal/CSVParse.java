@@ -23,6 +23,12 @@ public class CSVParse {
     // read first line
     String line = bufferedReader.readLine();
     List<Integer> value_indices = parseFirstLine(line, valueColName);
+    if (value_indices.get(1) == null || value_indices.get(2) == null) {
+      throw new IllegalStateException("ERROR: Could not find required columns Amount and Code");
+    }
+    if (value_indices.get(0) == null) {
+      System.out.println("INFO: Could not find column 'MERCHANT' images will be generated for ALL cards in CSV");
+    }
 
     while ((line = bufferedReader.readLine()) != null) {
       String[] data = line.split(",");

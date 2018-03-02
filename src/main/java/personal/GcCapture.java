@@ -105,7 +105,7 @@ public class GcCapture extends Application {
     }
 
     private static void printUsage() {
-        System.out.println("Usage: java -jar gccapture-1.01-SNAPSHOT.jar <args> --csv=<csv>");
+        System.out.println("Usage: java -jar gccapture.jar <args> --csv=<csv>");
         System.out.println("Output is in current directory");
         System.out.println("");
         System.out.println("REQUIRED Arguments");
